@@ -5,16 +5,15 @@ import (
 	"sync"
 )
 
-func Proxy(username string, password string, wg *sync.WaitGroup) {
+func Proxy(username string, password string, address string, wg *sync.WaitGroup) {
 	cookies := login(username, password)
-	name, err := check(cookies)
-	if err != nil {
-		panic(err)
-	}
+	name := check(cookies, username)
+	fmtstr := ""
 	if len(name) == len("夏驰") {
-		log.Printf("%v-%v   %v\n", username, name, submit(cookies))
+		fmtstr = "%v-%v   %v\n"
 	} else {
-		log.Printf("%v-%v %v\n", username, name, submit(cookies))
+		fmtstr = "%v-%v %v\n"
 	}
+	log.Printf(fmtstr, username, name, submit(cookies, address))
 	wg.Done()
 }

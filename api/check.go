@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
 
-func check(cookies []*http.Cookie) (string, error) {
+func check(cookies []*http.Cookie, username string) string {
 	req, err := http.NewRequest("GET", "https://xxcapp.xidian.edu.cn/xisuncov/wap/open-report/index", nil)
 	if err != nil {
 		panic(err)
@@ -26,10 +27,13 @@ func check(cookies []*http.Cookie) (string, error) {
 	if err != nil {
 		panic(err)
 	}
-	profile := profile{}
-	json.Unmarshal(bodyBytes, &profile)
 	if !strings.Contains(string(bodyBytes), "操作成功") {
-		return profile.D.Userinfo.Realname, errors.New("login error")
+		log.Panicln(errors.New(username +  " login error"))
 	}
-	return profile.D.Userinfo.Realname, nil
+	profile := profile{}
+	err = json.Unmarshal(bodyBytes, &profile)
+	if err != nil {
+		panic(err)
+	}
+	return profile.D.Userinfo.Realname
 }

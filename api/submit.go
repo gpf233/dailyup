@@ -1,22 +1,33 @@
 package api
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
-	"os"
+	"net/url"
+	"strings"
 )
 
-func submit(cookies []*http.Cookie) string {
-	jsonFile, err := os.Open("form.json")
+func submit(cookies []*http.Cookie, address string) string {
+	payload := url.Values{}
+	if address == "s" {
+		payload.Set("area", "陕西省 西安市 长安区")
+	} else if address == "n" {
+		payload.Set("area", "陕西省 西安市 雁塔区")
+	} else {
+		panic(errors.New("address error"))
+	}
+	payload.Set("tw", "2")
+	payload.Set("ymtys", "0")
+	payload.Set("sfzx", "1")
+	payload.Set("sfcyglq", "0")
+	payload.Set("sfyzz", "0")
+	payload.Set("qtqk", "无")
+	req, err := http.NewRequest("POST", "https://xxcapp.xidian.edu.cn/xisuncov/wap/open-report/save", strings.NewReader(payload.Encode()))
 	if err != nil {
 		panic(err)
 	}
-	defer jsonFile.Close()
-	req, err := http.NewRequest("POST", "https://xxcapp.xidian.edu.cn/xisuncov/wap/open-report/save", jsonFile)
-	if err != nil {
-		panic(err)
-	}
-	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}

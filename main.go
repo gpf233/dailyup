@@ -22,7 +22,7 @@ func main() {
 	wg := sync.WaitGroup{}
 	for _, user := range users {
 		wg.Add(1)
-		go api.Proxy(user.Username, user.Password, &wg)
+		go api.Proxy(user.Username, user.Password, user.Address, &wg)
 	}
 	wg.Wait()
 }
