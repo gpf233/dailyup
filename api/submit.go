@@ -1,10 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -17,12 +20,22 @@ func submit(cookies []*http.Cookie, address string) string {
 	} else {
 		panic(errors.New("address error"))
 	}
-	payload.Set("tw", "2")
-	payload.Set("ymtys", "0")
-	payload.Set("sfzx", "1")
-	payload.Set("sfcyglq", "0")
-	payload.Set("sfyzz", "0")
-	payload.Set("qtqk", "无")
+	formFile, err := os.Open("form.json")
+	if err != nil {
+		panic(err)
+	}
+	formBytes, err := ioutil.ReadAll(formFile)
+	if err != nil {
+		panic(err)
+	}
+	payloadMap := map[string]interface{}{}
+	err = json.Unmarshal(formBytes, &payloadMap)
+	if err != nil {
+		panic(err)
+	}
+	for key, value := range payloadMap {
+		payload.Set(key, fmt.Sprintf("%v", value))
+	}
 	req, err := http.NewRequest("POST", "https://xxcapp.xidian.edu.cn/xisuncov/wap/open-report/save", strings.NewReader(payload.Encode()))
 	if err != nil {
 		panic(err)
